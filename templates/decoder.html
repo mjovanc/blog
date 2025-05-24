@@ -1,0 +1,71 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Secret Ninja Decoder</title>
+        <style>
+            body {
+                font-family: "Courier New", monospace;
+                background: #222;
+                color: lime;
+                text-align: center;
+            }
+            .container {
+                margin: 50px auto;
+                max-width: 600px;
+            }
+            h1 {
+                font-size: 2em;
+                text-shadow: 0 0 10px lime;
+            }
+            input,
+            button {
+                padding: 10px;
+                margin: 10px;
+                font-size: 1em;
+            }
+            #output {
+                margin-top: 20px;
+                font-weight: bold;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Secret Ninja Decoder Ring</h1>
+            <p>
+                Found a secret message in a post? Paste it here to decode the
+                ninja wisdom!
+            </p>
+            <input
+                type="text"
+                id="encoded"
+                placeholder="Enter encoded message"
+            />
+            <button onclick="decode()">Decode</button>
+            <div id="output"></div>
+        </div>
+        <script>
+            function decode() {
+                const encoded = document.getElementById("encoded").value;
+                const shift = 3; // Matches the encryption shift
+                let decoded = "";
+                for (let i = 0; i < encoded.length; i++) {
+                    let char = encoded.charCodeAt(i);
+                    if (
+                        (char >= 65 && char <= 90) ||
+                        (char >= 97 && char <= 122)
+                    ) {
+                        const base = char >= 97 ? 97 : 65;
+                        decoded += String.fromCharCode(
+                            ((char - base - shift + 26) % 26) + base,
+                        );
+                    } else {
+                        decoded += encoded[i];
+                    }
+                }
+                document.getElementById("output").innerText =
+                    decoded || "No message decoded!";
+            }
+        </script>
+    </body>
+</html>

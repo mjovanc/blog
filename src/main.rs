@@ -4,6 +4,8 @@ use std::collections::BTreeMap;
 use std::fs::{self, File};
 use std::io::Write;
 use std::path::Path;
+mod crypto;
+mod decoder;
 
 fn main() -> std::io::Result<()> {
     // Initialize minijinja environment
@@ -47,6 +49,9 @@ fn main() -> std::io::Result<()> {
                 .trim_start_matches('#')
                 .trim();
 
+            // Generate secret message
+            let secret_message = crypto::generate_secret_message(title);
+
             // Extract date from filename (YYYY-MM-DD-title.md)
             let filename = path.file_stem().unwrap().to_string_lossy();
             let date = filename
@@ -60,12 +65,13 @@ fn main() -> std::io::Result<()> {
                 .to_owned()
                 + ".html";
 
-            // Render post
+            // Render post with secret message
             let template = env.get_template("base").expect("Base template not found");
             let rendered = template
                 .render(context! {
                     title => title,
-                    content => html_content
+                    content => html_content,
+                    secret_message => secret_message
                 })
                 .expect("Failed to render post");
 
@@ -100,6 +106,9 @@ fn main() -> std::io::Result<()> {
     let mut index_file = File::create(&index_path)?;
     index_file.write_all(rendered_index.as_bytes())?;
     println!("Generated: {}", index_path.display());
+
+    // Generate decoder page
+    decoder::generate_decoder_page(&mut env, public_dir)?;
 
     // Copy static assets
     let static_dir = Path::new("static");
