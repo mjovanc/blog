@@ -6,3 +6,4 @@ edition = "2024"
 [dependencies]
 pulldown-cmark = "0.12"
 minijinja = "2.3"
+serde = { version = "1.0", features = ["derive"] }
