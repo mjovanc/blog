@@ -12,7 +12,13 @@
             <nav><a href="/blog/index.html">Home</a></nav>
         </header>
         <main>{{ content | safe }}</main>
-        <a href="/decoder.html">Decode this message!</a></p>
+        <hr />
+        <p><strong>Secret Ninja Message:</strong> {{ secret_message }}</p>
+        <p><strong>Cipher Type:</strong> {{ cipher_type }}</p>
+        {% if cipher_key %}
+        <p><strong>Key:</strong> {{ cipher_key }}</p>
+        {% endif %}
+        <p><a href="/decoder.html">Decode this message!</a></p>
         <footer>
             <p>© 2025 Marcus Cvjeticanin</p>
         </footer>

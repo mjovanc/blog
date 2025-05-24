@@ -6,6 +6,8 @@ use std::io::Write;
 use std::path::Path;
 mod crypto;
 mod decoder;
+mod easter_eggs;
+mod style;
 
 fn main() -> std::io::Result<()> {
     // Initialize minijinja environment
@@ -49,9 +51,6 @@ fn main() -> std::io::Result<()> {
                 .trim_start_matches('#')
                 .trim();
 
-            // Generate secret message
-            let secret_message = crypto::generate_secret_message(title);
-
             // Extract date from filename (YYYY-MM-DD-title.md)
             let filename = path.file_stem().unwrap().to_string_lossy();
             let date = filename
@@ -65,13 +64,26 @@ fn main() -> std::io::Result<()> {
                 .to_owned()
                 + ".html";
 
-            // Render post with secret message
+            // Generate secret message and key
+            let use_vigenere = rand::random::<bool>(); // Randomly choose cipher
+            let secret_message = easter_eggs::get_random_message(title);
+            let key = crypto::generate_key(title, &date);
+            let cipher_type = if use_vigenere { "Vigenère" } else { "Caesar" };
+            let encoded_message = if use_vigenere {
+                crypto::vigenere_encrypt(&secret_message, &key)
+            } else {
+                crypto::caesar_encrypt(&secret_message, 3)
+            };
+
+            // Render post with secret message and cipher info
             let template = env.get_template("base").expect("Base template not found");
             let rendered = template
                 .render(context! {
                     title => title,
                     content => html_content,
-                    secret_message => secret_message
+                    secret_message => encoded_message,
+                    cipher_type => cipher_type,
+                    cipher_key => if use_vigenere { Some(key) } else { None }
                 })
                 .expect("Failed to render post");
 
@@ -109,6 +121,9 @@ fn main() -> std::io::Result<()> {
 
     // Generate decoder page
     decoder::generate_decoder_page(&mut env, public_dir)?;
+
+    // Generate CSS
+    style::generate_css(public_dir)?;
 
     // Copy static assets
     let static_dir = Path::new("static");

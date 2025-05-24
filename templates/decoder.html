@@ -1,41 +1,27 @@
 <!doctype html>
 <html>
     <head>
-        <title>Secret Ninja Decoder</title>
-        <style>
-            body {
-                font-family: "Courier New", monospace;
-                background: #222;
-                color: lime;
-                text-align: center;
-            }
-            .container {
-                margin: 50px auto;
-                max-width: 600px;
-            }
-            h1 {
-                font-size: 2em;
-                text-shadow: 0 0 10px lime;
-            }
-            input,
-            button {
-                padding: 10px;
-                margin: 10px;
-                font-size: 1em;
-            }
-            #output {
-                margin-top: 20px;
-                font-weight: bold;
-            }
-        </style>
+        <title>Crypto Ninja Decoder</title>
+        <link rel="stylesheet" href="/blog/decoder.css" />
     </head>
     <body>
         <div class="container">
-            <h1>Secret Ninja Decoder Ring</h1>
+            <h1>Crypto Ninja Decoder</h1>
             <p>
-                Found a secret message in a post? Paste it here to decode the
-                ninja wisdom!
+                Crack the code of the ninja bloggers! Select your cipher and
+                decode the secret!
             </p>
+            <select id="cipherType">
+                <option value="caesar">Caesar Cipher (Shift: 3)</option>
+                <option value="vigenere">
+                    Vigenère Cipher (Key: Post-specific)
+                </option>
+            </select>
+            <input
+                type="text"
+                id="key"
+                placeholder="Enter key (for Vigenère)"
+            />
             <input
                 type="text"
                 id="encoded"
@@ -43,24 +29,67 @@
             />
             <button onclick="decode()">Decode</button>
             <div id="output"></div>
+            <p class="hint">
+                Hint: Check the post for the cipher type and key (if needed)!
+            </p>
         </div>
         <script>
             function decode() {
+                const cipherType = document.getElementById("cipherType").value;
                 const encoded = document.getElementById("encoded").value;
-                const shift = 3; // Matches the encryption shift
+                const key = document.getElementById("key").value;
                 let decoded = "";
-                for (let i = 0; i < encoded.length; i++) {
-                    let char = encoded.charCodeAt(i);
-                    if (
-                        (char >= 65 && char <= 90) ||
-                        (char >= 97 && char <= 122)
-                    ) {
-                        const base = char >= 97 ? 97 : 65;
-                        decoded += String.fromCharCode(
-                            ((char - base - shift + 26) % 26) + base,
-                        );
-                    } else {
-                        decoded += encoded[i];
+
+                if (cipherType === "caesar") {
+                    const shift = 3;
+                    for (let i = 0; i < encoded.length; i++) {
+                        let char = encoded.charCodeAt(i);
+                        if (
+                            (char >= 65 && char <= 90) ||
+                            (char >= 97 && char <= 122)
+                        ) {
+                            const base = char >= 97 ? 97 : 65;
+                            decoded += String.fromCharCode(
+                                ((char - base - shift + 26) % 26) + base,
+                            );
+                        } else {
+                            decoded += encoded[i];
+                        }
+                    }
+                } else if (cipherType === "vigenere") {
+                    if (!key) {
+                        document.getElementById("output").innerText =
+                            "Please enter a key!";
+                        return;
+                    }
+                    const keyChars = key
+                        .toLowerCase()
+                        .split("")
+                        .filter((c) => /[a-z]/.test(c));
+                    if (keyChars.length === 0) {
+                        document.getElementById("output").innerText =
+                            "Invalid key!";
+                        return;
+                    }
+                    let keyIndex = 0;
+                    for (let i = 0; i < encoded.length; i++) {
+                        let char = encoded.charCodeAt(i);
+                        if (
+                            (char >= 65 && char <= 90) ||
+                            (char >= 97 && char <= 122)
+                        ) {
+                            const base = char >= 97 ? 97 : 65;
+                            const keyChar =
+                                keyChars[keyIndex % keyChars.length].charCodeAt(
+                                    0,
+                                ) - 97;
+                            decoded += String.fromCharCode(
+                                ((char - base - keyChar + 26) % 26) + base,
+                            );
+                            keyIndex++;
+                        } else {
+                            decoded += encoded[i];
+                        }
                     }
                 }
                 document.getElementById("output").innerText =
