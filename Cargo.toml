@@ -1,0 +1,8 @@
+[package]
+name = "blog"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+pulldown-cmark = "0.12"
+minijinja = "2.3"
