@@ -53,16 +53,14 @@ fn main() -> std::io::Result<()> {
 
             // Extract date from filename (YYYY-MM-DD-title.md)
             let filename = path.file_stem().unwrap().to_string_lossy();
-            let date = filename
-                .splitn(2, '-')
-                .next()
-                .unwrap_or("1970-01-01")
-                .to_string();
-            let output_filename = filename
-                .replace(&date, "")
-                .trim_start_matches('-')
-                .to_owned()
-                + ".html";
+            let mut parts = filename.splitn(4, '-'); // Expecting YYYY-MM-DD-title
+            let year = parts.next().unwrap_or("1970");
+            let month = parts.next().unwrap_or("01");
+            let day = parts.next().unwrap_or("01");
+            let title_part = parts.next().unwrap_or("untitled");
+
+            let date = format!("{year}-{month}-{day}");
+            let output_filename = format!("{date}-{title_part}.html");
 
             // Generate secret message and key
             let use_vigenere = rand::random::<bool>(); // Randomly choose cipher
