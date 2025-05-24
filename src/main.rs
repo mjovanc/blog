@@ -123,7 +123,8 @@ fn main() -> std::io::Result<()> {
     decoder::generate_decoder_page(&mut env, public_dir)?;
 
     // Generate CSS
-    style::generate_css(public_dir)?;
+    style::generate_css_decoder(public_dir)?;
+    style::generate_css_main(public_dir)?;
 
     // Copy static assets
     let static_dir = Path::new("static");
